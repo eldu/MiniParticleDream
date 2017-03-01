@@ -4,6 +4,21 @@ import Framework from './framework'
 import Noise from './noise'
 import {other} from './noise'
 
+var targetGeo;
+var sourceMesh;
+var n;
+
+var what = true;
+
+// u is a value from 0 to 1
+function lerp(a, b, u) {
+  // var c = new THREE.Vector3();
+
+
+
+  return a + u * (b - a);
+}
+
 // called after the scene loads
 function onLoad(framework) {
   var scene = framework.scene;
@@ -18,23 +33,39 @@ function onLoad(framework) {
   // initialize a simple box and material
   var box = new THREE.BoxGeometry(1, 1, 1);
 
-  var adamMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-      image: { // Check the Three.JS documentation for the different allowed types and values
-        type: "t", 
-        value: THREE.ImageUtils.loadTexture('./adam.jpg')
-      }
-    },
-    vertexShader: require('./shaders/adam-vert.glsl'),
-    fragmentShader: require('./shaders/adam-frag.glsl')
-  });
-  var adamCube = new THREE.Mesh(box, adamMaterial);
+  var pointMat = new THREE.PointsMaterial( { color: 0xffffff });  
+  pointMat.sizeAttenuation = false;
+
+  targetGeo = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+
+  var sourceGeo = new THREE.Geometry();
+
+  n = targetGeo.vertices.length;
+  for (var i = 0; i < n; i++) {
+      var pos = new THREE.Vector3(Math.random() * 1.0, Math.random() * 1.0, Math.random() * 1.0);
+      sourceGeo.vertices.push(pos);
+  }
+
+  sourceMesh = new THREE.Points(sourceGeo, pointMat); // Mesh
+  scene.add(sourceMesh);
+
+  // var adamMaterial = new THREE.ShaderMaterial({
+  //   uniforms: {
+  //     image: { // Check the Three.JS documentation for the different allowed types and values
+  //       type: "t", 
+  //       value: THREE.ImageUtils.loadTexture('./adam.jpg')
+  //     }
+  //   },
+  //   vertexShader: require('./shaders/adam-vert.glsl'),
+  //   fragmentShader: require('./shaders/adam-frag.glsl')
+  // });
+  // var adamCube = new THREE.Mesh(box, adamMaterial);
 
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
 
-  scene.add(adamCube);
+  // scene.add(adamCube);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
@@ -45,7 +76,26 @@ function onLoad(framework) {
 
 // called on frame updates
 function onUpdate(framework) {
-  // console.log(`the time is ${new Date()}`);
+  if (sourceMesh) {
+    var d = new Date();
+    var t = d.getTime();
+
+    for (var i = 0; i < n; i++) {
+      var targetPos = targetGeo.vertices[i];
+      var sourcePos = sourceMesh.geometry.vertices[i];
+
+      sourceMesh.geometry.vertices[i] = new THREE.Vector3(
+          lerp(sourcePos.x, targetPos.x, 0.001),
+          lerp(sourcePos.y, targetPos.y, 0.001),
+          lerp(sourcePos.z, targetPos.z, 0.001));
+
+      //sourceMesh.geometry.vertices[i] = new THREE.Vector3(Math.random(t) * 1.0, Math.random() * 1.0, Math.random() * 1.0);
+    }
+
+    // Make sure to update
+    sourceMesh.geometry.verticesNeedUpdate = true;
+  }
+
 }
 
 // when the scene is done initializing, it will call onLoad, then on frame updates, call onUpdate
