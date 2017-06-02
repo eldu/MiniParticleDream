@@ -12,10 +12,6 @@ var what = true;
 
 // u is a value from 0 to 1
 function lerp(a, b, u) {
-  // var c = new THREE.Vector3();
-
-
-
   return a + u * (b - a);
 }
 
@@ -36,7 +32,7 @@ function onLoad(framework) {
   var pointMat = new THREE.PointsMaterial( { color: 0xffffff });  
   pointMat.sizeAttenuation = false;
 
-  targetGeo = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+  targetGeo = new THREE.TorusKnotGeometry( 10, 3, 100, 16 ); // Start
 
   var sourceGeo = new THREE.Geometry();
 
@@ -49,23 +45,9 @@ function onLoad(framework) {
   sourceMesh = new THREE.Points(sourceGeo, pointMat); // Mesh
   scene.add(sourceMesh);
 
-  // var adamMaterial = new THREE.ShaderMaterial({
-  //   uniforms: {
-  //     image: { // Check the Three.JS documentation for the different allowed types and values
-  //       type: "t", 
-  //       value: THREE.ImageUtils.loadTexture('./adam.jpg')
-  //     }
-  //   },
-  //   vertexShader: require('./shaders/adam-vert.glsl'),
-  //   fragmentShader: require('./shaders/adam-frag.glsl')
-  // });
-  // var adamCube = new THREE.Mesh(box, adamMaterial);
-
   // set camera position
   camera.position.set(1, 1, 2);
   camera.lookAt(new THREE.Vector3(0,0,0));
-
-  // scene.add(adamCube);
 
   // edit params and listen to changes like this
   // more information here: https://workshop.chromeexperiments.com/examples/gui/#1--Basic-Usage
